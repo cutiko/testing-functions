@@ -25,9 +25,21 @@ function notificationCounter(key) {
             return counter.ref.set(1);
         } else {
             var counterValue = counter.val();
-            console.log(counterValue);
+            console.log('counter value is: ' + counterValue);
             counterValue++;
-            return counter.ref.set(counterValue)
+            counter.ref.set(counterValue);
+            var tokens = [snapshot.child('token').val()];
+            console.log('token is: ' + tokens[0]);
+        
+            const payload = {
+                notification: {
+                    title: 'title',
+                    body: 'body',
+                }
+            };
+            return admin.messaging().sendToDevice(tokens, payload).then(response => {
+                console.log(response.results);
+            });
         }
     });
 }
