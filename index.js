@@ -18,28 +18,28 @@ exports.notificationListener = functions.database.ref('/users/{childs}/notificat
 function notificationCounter(key) {
     console.log('key inside function is: ' + key);
     admin.database().ref(`/users/${key}`).once('value').then(snapshot => {
-        console.log(snapshot.val());
-        const counter = snapshot.child('counter');
-        console.log(counter.exists());
-        if (!counter.exists()) {
-            return counter.ref.set(1);
-        } else {
-            var counterValue = counter.val();
-            console.log('counter value is: ' + counterValue);
-            counterValue++;
-            counter.ref.set(counterValue);
-            var tokens = [snapshot.child('token').val()];
-            console.log('token is: ' + tokens[0]);
-        
-            const payload = {
-                notification: {
-                    title: 'title',
-                    body: 'body',
-                }
-            };
-            return admin.messaging().sendToDevice(tokens, payload).then(response => {
-                console.log(response.results);
-            });
-        }
+        const user = snapshot.val();
+        console.log("user:" + user);
+        var counter = user.counter;
+        console.log("original count: " + counter);
+        counter++;
+        console.log("added count: " + counter);
+        snapshot.child('counter').ref.set(counter);
+        var token = user.token;
+        console.log("user token is:" + token);
+        sendMessage(user, token);
     });
+
+    function sendMessage(user, token) {
+        var tokens = [token];
+        const payload = {
+            data: {
+                "message": "Greetings from the app",
+                "number": `${user.name} sent you a message`
+            }
+        };
+        return admin.messaging().sendToDevice(tokens, payload).then(response => {
+            console.log(response.results);
+        });
+    }
 }
