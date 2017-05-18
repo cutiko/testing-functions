@@ -35,7 +35,7 @@ function notificationCounter(key) {
         const payload = {
             data: {
                 "message": "Greetings from the app",
-                "number": `${user.name} sent you a message`
+                "sender": `${user.name} sent you a message`
             }
         };
         return admin.messaging().sendToDevice(tokens, payload).then(response => {
