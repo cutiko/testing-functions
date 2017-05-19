@@ -2,6 +2,16 @@ var functions = require('firebase-functions');
 var admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 
+exports.registerUser = functions.auth.user().onCreate(event => {
+    const user = event.data;
+    return admin.database().ref('users').child(`${user.uid}`).set({
+        name: `${user.displayName}`,
+        counter: 0,
+        email: `${user.email}`,
+        notification: false
+    });
+});
+
 exports.notificationListener = functions.database.ref('/users/{childs}/notification')
     .onWrite(event => {
         var notification = event.data.val();
